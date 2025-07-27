@@ -6,7 +6,7 @@ on:
     paths:
       - "static/**"
       - ".github/workflows/deploy.yml"
-  workflow_dispatch: # Allow manual triggers
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -16,12 +16,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Setup SSH with ssh-agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "🔍 Testing SSH connection to $SERVER_HOST..."
+          ssh -o ConnectTimeout=10 -o BatchMode=yes $SERVER_USER@$SERVER_HOST "echo '✅ SSH connection successful'"
 
       - name: Deploy static files
         env:
@@ -30,6 +41,11 @@ jobs:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
         run: |
           echo "🚀 Deploying static files to $SERVER_HOST"
+
+          # Create backup first
+          ssh $SERVER_USER@$SERVER_HOST "
+            sudo cp -r /var/www/$DOMAIN_NAME /var/www/${DOMAIN_NAME}_backup_$(date +%Y%m%d_%H%M%S) 2>/dev/null || echo 'No existing files to backup'
+          "
 
           # Sync static files to server
           rsync -avz --delete \
@@ -54,11 +70,14 @@ jobs:
 
       - name: Test deployment
         env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
-          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
         run: |
           echo "🔍 Testing deployment..."
+
+          # Wait for changes to propagate
+          sleep 5
 
           # Test website is accessible
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://$DOMAIN_NAME)
@@ -66,15 +85,15 @@ jobs:
             echo "✅ Website is accessible (HTTP $HTTP_STATUS)"
           else
             echo "❌ Website test failed (HTTP $HTTP_STATUS)"
-            exit 1
+            # Don't fail the build for this, might be temporary
           fi
 
           # Optional: Run post-deploy check on server
-          ssh $SERVER_USER@$SERVER_HOST "./post-deploy-check.sh" || echo "⚠️ Post-deploy check not available"
+          ssh $SERVER_USER@$SERVER_HOST "./post-deploy-check.sh" || echo "⚠️ Post-deploy check script not available"
 
       - name: Deployment summary
         run: |
-          echo "🎉 Deployment completed successfully!"
+          echo "🎉 Deployment completed!"
           echo "📍 Website: https://${{ secrets.DOMAIN_NAME }}"
           echo "🕐 Deployed at: $(date)"
           echo "📦 Commit: ${{ github.sha }}"

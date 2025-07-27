@@ -1,0 +1,165 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - nginx
+  - ufw
+  - fail2ban
+  - certbot
+  - python3-certbot-nginx
+  - git
+  - rsync
+  - unattended-upgrades
+  - logwatch
+  - rkhunter
+
+users:
+  - name: deploy
+    groups: sudo, www-data
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - "${ssh_public_key}"
+
+write_files:
+  # Enhanced nginx config with security headers
+  - path: /etc/nginx/sites-available/${domain_name}
+    content: |
+      server {
+          listen 80;
+          server_name ${domain_name} www.${domain_name};
+          
+          # Redirect HTTP to HTTPS
+          return 301 https://$server_name$request_uri;
+      }
+
+      server {
+          listen 443 ssl http2;
+          server_name ${domain_name} www.${domain_name};
+          root /var/www/${domain_name};
+          index index.html;
+          
+          # SSL configuration (will be managed by certbot)
+          ssl_certificate /etc/letsencrypt/live/${domain_name}/fullchain.pem;
+          ssl_certificate_key /etc/letsencrypt/live/${domain_name}/privkey.pem;
+          include /etc/letsencrypt/options-ssl-nginx.conf;
+          ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+          
+          location / {
+              try_files $uri $uri/ =404;
+          }
+          
+          # Enhanced security headers
+          add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-XSS-Protection "1; mode=block" always;
+          add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+          add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';" always;
+          
+          # Hide nginx version
+          server_tokens off;
+          
+          # Gzip compression
+          gzip on;
+          gzip_vary on;
+          gzip_min_length 1024;
+          gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+      }
+
+  # SSH security hardening
+  - path: /etc/ssh/sshd_config.d/99-security.conf
+    content: |
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      PermitRootLogin no
+      Protocol 2
+      MaxAuthTries 3
+      ClientAliveInterval 300
+      ClientAliveCountMax 2
+
+  # Automatic security updates
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+
+  # Fail2ban jail configuration
+  - path: /etc/fail2ban/jail.local
+    content: |
+      [sshd]
+      enabled = true
+      port = ssh
+      filter = sshd
+      logpath = /var/log/auth.log
+      maxretry = 3
+      bantime = 3600
+      findtime = 600
+
+  # Security monitoring script
+  - path: /home/deploy/security-check.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      echo "=== SECURITY STATUS CHECK ==="
+      echo "Date: $(date)"
+      echo ""
+      echo "1. SSL Certificate Status:"
+      sudo certbot certificates 2>/dev/null || echo "SSL not yet configured"
+      echo ""
+      echo "2. Firewall Status:"
+      sudo ufw status
+      echo ""
+      echo "3. Failed Login Attempts (last 5):"
+      sudo grep "Failed password" /var/log/auth.log 2>/dev/null | tail -5 || echo "No failed attempts"
+      echo ""
+      echo "4. System Updates Available:"
+      apt list --upgradable 2>/dev/null | wc -l
+      echo ""
+      echo "5. Services Status:"
+      echo "Nginx: $(sudo systemctl is-active nginx)"
+      echo "Fail2ban: $(sudo systemctl is-active fail2ban)"
+      echo "UFW: $(sudo systemctl is-active ufw)"
+
+runcmd:
+  # Create web directory with proper permissions
+  - mkdir -p /var/www/${domain_name}
+  - chown -R deploy:www-data /var/www/${domain_name}
+  - chmod -R 755 /var/www/${domain_name}
+
+  # Create placeholder page
+  - echo '<h1>${domain_name}</h1><p>Secure server ready! HTTPS deployment coming soon...</p>' > /var/www/${domain_name}/index.html
+  - chown deploy:www-data /var/www/${domain_name}/index.html
+
+  # Configure nginx (initial HTTP-only setup)
+  - rm -f /etc/nginx/sites-enabled/default
+
+  # Configure firewall BEFORE enabling nginx
+  - ufw --force reset
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow OpenSSH
+  - ufw allow 'Nginx Full'
+  - ufw --force enable
+
+  # Security services
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - systemctl restart sshd
+
+  # Enable and start nginx
+  - systemctl enable nginx
+  - systemctl start nginx
+
+  # Enable automatic security updates
+  - systemctl enable unattended-upgrades
+  - systemctl start unattended-upgrades
+
+  # Create SSL certificate (this might fail initially, but we'll handle it in deployment)
+  - sleep 30 # Wait for DNS propagation
+  - certbot --nginx --non-interactive --agree-tos --email admin@${domain_name} -d ${domain_name} -d www.${domain_name} || echo "SSL setup will be completed in deployment phase"
+
+  # Set ownership for security script
+  - chown deploy:deploy /home/deploy/security-check.sh

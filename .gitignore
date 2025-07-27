@@ -1,3 +1,60 @@
-terraform/terraform.tfvars
+# Terraform
 terraform/.terraform/
-terraform/*.tfstate*
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+
+# Environment files (in case you ever use them)
+.env
+.env.local
+.env.development
+.env.production
+
+# SSH keys (never commit these!)
+*.pem
+*.key
+*_rsa
+*_ed25519
+id_rsa*
+id_ed25519*
+
+# API keys and secrets (extra safety)
+*secret*
+*token*
+*api*key*
+config/secrets.yml
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/

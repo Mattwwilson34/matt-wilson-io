@@ -39,11 +39,11 @@ resource "digitalocean_firewall" "mattwilson_firewall" {
 
   droplet_ids = [digitalocean_droplet.mattwilson_server.id]
 
-  # SSH access only from your IP
+  # SSH access 
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["136.47.170.156/32"] # Only my IP
+    source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
   # HTTP (port 80)

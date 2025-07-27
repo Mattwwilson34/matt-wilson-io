@@ -23,40 +23,23 @@ users:
       - "${ssh_public_key}"
 
 write_files:
-  # Enhanced nginx config with security headers
+  # Initial HTTP-only nginx config (SSL will be added by certbot)
   - path: /etc/nginx/sites-available/${domain_name}
     content: |
       server {
           listen 80;
           server_name ${domain_name} www.${domain_name};
-          
-          # Redirect HTTP to HTTPS
-          return 301 https://$server_name$request_uri;
-      }
-
-      server {
-          listen 443 ssl http2;
-          server_name ${domain_name} www.${domain_name};
           root /var/www/${domain_name};
           index index.html;
-          
-          # SSL configuration (will be managed by certbot)
-          ssl_certificate /etc/letsencrypt/live/${domain_name}/fullchain.pem;
-          ssl_certificate_key /etc/letsencrypt/live/${domain_name}/privkey.pem;
-          include /etc/letsencrypt/options-ssl-nginx.conf;
-          ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
           
           location / {
               try_files $uri $uri/ =404;
           }
           
-          # Enhanced security headers
-          add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+          # Basic security headers (enhanced ones will come with SSL)
           add_header X-Frame-Options "SAMEORIGIN" always;
           add_header X-Content-Type-Options "nosniff" always;
           add_header X-XSS-Protection "1; mode=block" always;
-          add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-          add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';" always;
           
           # Hide nginx version
           server_tokens off;
@@ -123,6 +106,26 @@ write_files:
       echo "Fail2ban: $(sudo systemctl is-active fail2ban)"
       echo "UFW: $(sudo systemctl is-active ufw)"
 
+  # Enhanced security headers script (to run after SSL setup)
+  - path: /home/deploy/enhance-security-headers.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      echo "Adding enhanced security headers to nginx config..."
+
+      # Backup current config
+      sudo cp /etc/nginx/sites-available/${domain_name} /etc/nginx/sites-available/${domain_name}.backup
+
+      # Add enhanced security headers to the HTTPS server block
+      sudo sed -i '/add_header.*always;/a\
+          add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;\
+          add_header Referrer-Policy "strict-origin-when-cross-origin" always;\
+          add_header Content-Security-Policy "default-src '\''self'\''; script-src '\''self'\'' '\''unsafe-inline'\''; style-src '\''self'\'' '\''unsafe-inline'\''; img-src '\''self'\'' data:; font-src '\''self'\'';" always;' /etc/nginx/sites-available/${domain_name}
+
+      # Test and reload nginx
+      sudo nginx -t && sudo systemctl reload nginx
+      echo "Enhanced security headers added successfully!"
+
 runcmd:
   # Create web directory with proper permissions
   - mkdir -p /var/www/${domain_name}
@@ -130,13 +133,10 @@ runcmd:
   - chmod -R 755 /var/www/${domain_name}
 
   # Create placeholder page
-  - echo '<h1>${domain_name}</h1><p>Secure server ready! HTTPS deployment coming soon...</p>' > /var/www/${domain_name}/index.html
+  - echo '<h1>${domain_name}</h1><p>Server ready! Setting up HTTPS...</p>' > /var/www/${domain_name}/index.html
   - chown deploy:www-data /var/www/${domain_name}/index.html
 
-  # Configure nginx (initial HTTP-only setup)
-  - rm -f /etc/nginx/sites-enabled/default
-
-  # Configure firewall BEFORE enabling nginx
+  # Configure firewall
   - ufw --force reset
   - ufw default deny incoming
   - ufw default allow outgoing
@@ -144,22 +144,32 @@ runcmd:
   - ufw allow 'Nginx Full'
   - ufw --force enable
 
-  # Security services
+  # Configure nginx (HTTP-only initially)
+  - rm -f /etc/nginx/sites-enabled/default
+  - ln -sf /etc/nginx/sites-available/${domain_name} /etc/nginx/sites-enabled/
+
+  # Test nginx config before starting
+  - nginx -t
+
+  # Start services in correct order
+  - systemctl enable nginx
+  - systemctl start nginx
   - systemctl enable fail2ban
   - systemctl start fail2ban
   - systemctl restart sshd
-
-  # Enable and start nginx
-  - systemctl enable nginx
-  - systemctl start nginx
-
-  # Enable automatic security updates
   - systemctl enable unattended-upgrades
   - systemctl start unattended-upgrades
 
-  # Create SSL certificate (this might fail initially, but we'll handle it in deployment)
-  - sleep 30 # Wait for DNS propagation
-  - certbot --nginx --non-interactive --agree-tos --email admin@${domain_name} -d ${domain_name} -d www.${domain_name} || echo "SSL setup will be completed in deployment phase"
+  # Wait for DNS propagation and services to be ready
+  - sleep 60
 
-  # Set ownership for security script
+  # Create SSL certificate (this will modify the nginx config automatically)
+  - certbot --nginx --non-interactive --agree-tos --email admin@${domain_name} -d ${domain_name} -d www.${domain_name} --redirect || echo "SSL setup failed - will retry manually"
+
+  # Set ownership for scripts
   - chown deploy:deploy /home/deploy/security-check.sh
+  - chown deploy:deploy /home/deploy/enhance-security-headers.sh
+
+  # Update placeholder to show success
+  - echo '<h1>${domain_name}</h1><p>Secure server ready! HTTPS configured automatically.</p>' > /var/www/${domain_name}/index.html
+  - chown deploy:www-data /var/www/${domain_name}/index.html

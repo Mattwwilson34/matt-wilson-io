@@ -1,0 +1,80 @@
+name: Deploy Static Website
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "static/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy static files
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🚀 Deploying static files to $SERVER_HOST"
+
+          # Sync static files to server
+          rsync -avz --delete \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            --exclude='.git*' \
+            ./static/ $SERVER_USER@$SERVER_HOST:/var/www/$DOMAIN_NAME/
+
+          echo "✅ Files deployed successfully"
+
+      - name: Fix file permissions
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST "
+            sudo chown -R deploy:www-data /var/www/$DOMAIN_NAME/ &&
+            sudo chmod -R 755 /var/www/$DOMAIN_NAME/ &&
+            sudo find /var/www/$DOMAIN_NAME/ -type f -exec chmod 644 {} \;
+          "
+
+      - name: Test deployment
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🔍 Testing deployment..."
+
+          # Test website is accessible
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://$DOMAIN_NAME)
+          if [ $HTTP_STATUS -eq 200 ]; then
+            echo "✅ Website is accessible (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ Website test failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+
+          # Optional: Run post-deploy check on server
+          ssh $SERVER_USER@$SERVER_HOST "./post-deploy-check.sh" || echo "⚠️ Post-deploy check not available"
+
+      - name: Deployment summary
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "📍 Website: https://${{ secrets.DOMAIN_NAME }}"
+          echo "🕐 Deployed at: $(date)"
+          echo "📦 Commit: ${{ github.sha }}"

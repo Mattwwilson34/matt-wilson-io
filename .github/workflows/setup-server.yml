@@ -1,0 +1,146 @@
+name: Setup Server Configuration
+
+on:
+  workflow_dispatch: # Manual trigger only
+    inputs:
+      skip_ssl:
+        description: "Skip SSL setup (for testing)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  setup-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH with ssh-agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "🔍 Testing SSH connection to $SERVER_HOST..."
+          ssh -o ConnectTimeout=10 -o BatchMode=yes $SERVER_USER@$SERVER_HOST "echo '✅ SSH connection successful'"
+
+      - name: Wait for cloud-init to complete
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "⏳ Waiting for server initialization to complete..."
+          for i in {1..20}; do
+            if ssh $SERVER_USER@$SERVER_HOST "sudo systemctl is-active nginx >/dev/null 2>&1"; then
+              echo "✅ Server initialization complete!"
+              break
+            fi
+            echo "⏳ Attempt $i/20: Server still initializing, waiting 30 seconds..."
+            sleep 30
+          done
+
+      - name: Copy configuration scripts
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "📂 Copying configuration scripts to server..."
+          rsync -avz ./scripts/ $SERVER_USER@$SERVER_HOST:/home/deploy/scripts/
+
+      - name: Make scripts executable
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST "chmod +x /home/deploy/scripts/*.sh"
+
+      - name: Setup nginx configuration
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🌐 Setting up nginx configuration for $DOMAIN_NAME..."
+          ssh $SERVER_USER@$SERVER_HOST "/home/deploy/scripts/setup-nginx.sh $DOMAIN_NAME"
+
+      - name: Setup SSL certificate
+        if: ${{ !inputs.skip_ssl }}
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🔒 Setting up SSL certificate for $DOMAIN_NAME..."
+          ssh $SERVER_USER@$SERVER_HOST "/home/deploy/scripts/setup-ssl.sh $DOMAIN_NAME"
+
+      - name: Add security headers
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🛡️ Adding security headers..."
+          ssh $SERVER_USER@$SERVER_HOST "/home/deploy/scripts/setup-security-headers.sh $DOMAIN_NAME"
+
+      - name: Create initial placeholder
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "📄 Creating initial placeholder page..."
+          ssh $SERVER_USER@$SERVER_HOST "
+            sudo mkdir -p /var/www/$DOMAIN_NAME
+            echo '<h1>$DOMAIN_NAME</h1><p>Server configured! Ready for deployment.</p>' | sudo tee /var/www/$DOMAIN_NAME/index.html
+            sudo chown -R deploy:www-data /var/www/$DOMAIN_NAME
+            sudo chmod -R 755 /var/www/$DOMAIN_NAME
+          "
+
+      - name: Verify configuration
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo "🔍 Verifying server configuration..."
+
+          # Test nginx config
+          ssh $SERVER_USER@$SERVER_HOST "sudo nginx -t" && echo "✅ Nginx config valid"
+
+          # Test HTTP response
+          sleep 10
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://$DOMAIN_NAME 2>/dev/null || echo "000")
+          if [ $HTTP_STATUS -eq 200 ]; then
+            echo "✅ HTTPS is working (HTTP $HTTP_STATUS)"
+          else
+            echo "⚠️ HTTPS test failed (HTTP $HTTP_STATUS) - may need DNS propagation time"
+          fi
+
+          # Check security headers
+          SECURITY_HEADERS=$(curl -s -I https://$DOMAIN_NAME 2>/dev/null | grep -c 'Strict-Transport-Security\|Content-Security-Policy' || echo "0")
+          echo "🛡️ Security headers found: $SECURITY_HEADERS/2"
+
+      - name: Configuration summary
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo ""
+          echo "🎉 Server configuration completed!"
+          echo "📍 Website: https://$DOMAIN_NAME"
+          echo "🕐 Configured at: $(date)"
+          echo "📦 Commit: ${{ github.sha }}"
+          echo ""
+          echo "Next steps:"
+          echo "1. Wait for DNS propagation if needed"
+          echo "2. Run your existing deployment workflow to upload your site"
+          echo "3. Test security headers with: curl -I https://$DOMAIN_NAME"

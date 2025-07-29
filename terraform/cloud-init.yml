@@ -10,9 +10,6 @@ packages:
   - python3-certbot-nginx
   - git
   - rsync
-  - unattended-upgrades
-  - logwatch
-  - rkhunter
 
 users:
   - name: deploy
@@ -23,35 +20,7 @@ users:
       - "${ssh_public_key}"
 
 write_files:
-  # Initial HTTP-only nginx config (SSL will be added by certbot)
-  - path: /etc/nginx/sites-available/${domain_name}
-    content: |
-      server {
-          listen 80;
-          server_name ${domain_name} www.${domain_name};
-          root /var/www/${domain_name};
-          index index.html;
-          
-          location / {
-              try_files $uri $uri/ =404;
-          }
-          
-          # Basic security headers (enhanced ones will come with SSL)
-          add_header X-Frame-Options "SAMEORIGIN" always;
-          add_header X-Content-Type-Options "nosniff" always;
-          add_header X-XSS-Protection "1; mode=block" always;
-          
-          # Hide nginx version
-          server_tokens off;
-          
-          # Gzip compression
-          gzip on;
-          gzip_vary on;
-          gzip_min_length 1024;
-          gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
-      }
-
-  # SSH security hardening
+  # SSH hardening
   - path: /etc/ssh/sshd_config.d/99-security.conf
     content: |
       PasswordAuthentication no
@@ -59,84 +28,9 @@ write_files:
       PermitRootLogin no
       Protocol 2
       MaxAuthTries 3
-      ClientAliveInterval 300
-      ClientAliveCountMax 2
-
-  # Automatic security updates
-  - path: /etc/apt/apt.conf.d/20auto-upgrades
-    content: |
-      APT::Periodic::Update-Package-Lists "1";
-      APT::Periodic::Unattended-Upgrade "1";
-      APT::Periodic::AutocleanInterval "7";
-
-  # Fail2ban jail configuration
-  - path: /etc/fail2ban/jail.local
-    content: |
-      [sshd]
-      enabled = true
-      port = ssh
-      filter = sshd
-      logpath = /var/log/auth.log
-      maxretry = 3
-      bantime = 3600
-      findtime = 600
-
-  # Security monitoring script
-  - path: /home/deploy/security-check.sh
-    permissions: "0755"
-    content: |
-      #!/bin/bash
-      echo "=== SECURITY STATUS CHECK ==="
-      echo "Date: $(date)"
-      echo ""
-      echo "1. SSL Certificate Status:"
-      sudo certbot certificates 2>/dev/null || echo "SSL not yet configured"
-      echo ""
-      echo "2. Firewall Status:"
-      sudo ufw status
-      echo ""
-      echo "3. Failed Login Attempts (last 5):"
-      sudo grep "Failed password" /var/log/auth.log 2>/dev/null | tail -5 || echo "No failed attempts"
-      echo ""
-      echo "4. System Updates Available:"
-      apt list --upgradable 2>/dev/null | wc -l
-      echo ""
-      echo "5. Services Status:"
-      echo "Nginx: $(sudo systemctl is-active nginx)"
-      echo "Fail2ban: $(sudo systemctl is-active fail2ban)"
-      echo "UFW: $(sudo systemctl is-active ufw)"
-
-  # Enhanced security headers script (to run after SSL setup)
-  - path: /home/deploy/enhance-security-headers.sh
-    permissions: "0755"
-    content: |
-      #!/bin/bash
-      echo "Adding enhanced security headers to nginx config..."
-
-      # Backup current config
-      sudo cp /etc/nginx/sites-available/${domain_name} /etc/nginx/sites-available/${domain_name}.backup
-
-      # Add enhanced security headers to the HTTPS server block
-      sudo sed -i '/add_header.*always;/a\
-          add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;\
-          add_header Referrer-Policy "strict-origin-when-cross-origin" always;\
-          add_header Content-Security-Policy "default-src '\''self'\''; script-src '\''self'\'' '\''unsafe-inline'\''; style-src '\''self'\'' '\''unsafe-inline'\''; img-src '\''self'\'' data:; font-src '\''self'\'';" always;' /etc/nginx/sites-available/${domain_name}
-
-      # Test and reload nginx
-      sudo nginx -t && sudo systemctl reload nginx
-      echo "Enhanced security headers added successfully!"
 
 runcmd:
-  # Create web directory with proper permissions
-  - mkdir -p /var/www/${domain_name}
-  - chown -R deploy:www-data /var/www/${domain_name}
-  - chmod -R 755 /var/www/${domain_name}
-
-  # Create placeholder page
-  - echo '<h1>${domain_name}</h1><p>Server ready! Setting up HTTPS...</p>' > /var/www/${domain_name}/index.html
-  - chown deploy:www-data /var/www/${domain_name}/index.html
-
-  # Configure firewall
+  # Basic firewall setup
   - ufw --force reset
   - ufw default deny incoming
   - ufw default allow outgoing
@@ -144,36 +38,13 @@ runcmd:
   - ufw allow 'Nginx Full'
   - ufw --force enable
 
-  # Configure nginx (HTTP-only initially)
-  - rm -f /etc/nginx/sites-enabled/default
-  - ln -sf /etc/nginx/sites-available/${domain_name} /etc/nginx/sites-enabled/
-
-  # Test nginx config before starting
-  - nginx -t
-
-  # Start services in correct order
+  # Start services
   - systemctl enable nginx
   - systemctl start nginx
   - systemctl enable fail2ban
   - systemctl start fail2ban
   - systemctl restart sshd
-  - systemctl enable unattended-upgrades
-  - systemctl start unattended-upgrades
 
-  # Wait for DNS propagation and services to be ready
-  - sleep 60
-
-  # Create SSL certificate (this will modify the nginx config automatically)
-  - certbot --nginx --non-interactive --agree-tos --email admin@${domain_name} -d ${domain_name} -d www.${domain_name} --redirect || echo "SSL setup failed - will retry manually"
-
-  # Set ownership for scripts
-  - chown deploy:deploy /home/deploy/security-check.sh
-  - chown deploy:deploy /home/deploy/enhance-security-headers.sh
-
-  # Execute the security enhancement script
-  - /home/deploy/enhance-security-headers.sh
-  - /home/deploy/security-check.sh
-
-  # Update placeholder to show success
-  - echo '<h1>${domain_name}</h1><p>Secure server ready! HTTPS configured automatically.</p>' > /var/www/${domain_name}/index.html
-  - chown deploy:www-data /var/www/${domain_name}/index.html
+  # Create ready marker for GitHub Actions
+  - echo "$(date): Basic server setup complete" > /home/deploy/server-ready.log
+  - chown deploy:deploy /home/deploy/server-ready.log

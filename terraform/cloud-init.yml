@@ -170,6 +170,10 @@ runcmd:
   - chown deploy:deploy /home/deploy/security-check.sh
   - chown deploy:deploy /home/deploy/enhance-security-headers.sh
 
+  # Execute the security enhancement script
+  - /home/deploy/enhance-security-headers.sh
+  - /home/deploy/security-check.sh
+
   # Update placeholder to show success
   - echo '<h1>${domain_name}</h1><p>Secure server ready! HTTPS configured automatically.</p>' > /var/www/${domain_name}/index.html
   - chown deploy:www-data /var/www/${domain_name}/index.html

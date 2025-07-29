@@ -1,12 +1,9 @@
 # Matt Wilson - Portfolio Website
 
-Personal portfolio showcasing my journey from licensed physical therapist to Full-Stack Engineer II, with experience building healthcare technology at Radial.
+Static HTML/CSS portfolio built with modern deployment practices. Features my
+professional experience, major projects, and technical background.
 
 🌐 **Live Site**: [mattwilson.io](https://mattwilson.io)
-
-## About This Site
-
-Static HTML/CSS portfolio built with modern deployment practices. Features my professional experience, major projects, and technical background bridging healthcare and software engineering.
 
 ## Repository Structure
 

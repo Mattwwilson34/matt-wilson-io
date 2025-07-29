@@ -17,7 +17,7 @@ sudo sed -i '/listen 443.*ssl/a\
     # Security Headers\
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;\
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;\
-    add_header Content-Security-Policy-Report-Only "default-src '\''self'\''; script-src '\''none'\''; style-src '\''self'\''; img-src '\''self'\''; font-src '\''self'\''; connect-src '\''none'\''; object-src '\''none'\''; base-uri '\''self'\''; form-action '\''none'\''; frame-ancestors '\''none'\''; upgrade-insecure-requests" always;' /etc/nginx/sites-available/$DOMAIN_NAME
+    add_header Content-Security-Policy "default-src '\''self'\''; script-src '\''none'\''; style-src '\''self'\''; img-src '\''self'\''; font-src '\''self'\''; connect-src '\''none'\''; object-src '\''none'\''; base-uri '\''self'\''; form-action '\''none'\''; frame-ancestors '\''none'\''; upgrade-insecure-requests" always;' /etc/nginx/sites-available/$DOMAIN_NAME
 
 # Test configuration
 if sudo nginx -t; then

@@ -3,385 +3,367 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Matt Wilson - Full-Stack Engineer</title>
+    <title>Matt Wilson — Full-Stack Software Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
-      <header>
-        <div class="header-content">
-          <div class="hero-text">
-            <h1>Hi there, my name is Matt Wilson.</h1>
-            <p class="intro">
-              I'm a full-stack engineer who enjoys everything from building
-              scalable backend systems to crafting delightful user experiences.
-              Currently building healthcare technology at
-              <a
-                href="https://www.radialcare.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Radial</a
-              >, where I bridge clinical expertise as a licensed physical
-              therapist with engineering skills to create products that improve
-              patient outcomes and clinical workflows.
-            </p>
+    <!-- NAV -->
+    <nav class="nav" id="nav">
+      <div class="nav-inner">
+        <span class="nav-logo">matt<em>.</em>wilson</span>
+        <ul class="nav-links">
+          <li><a href="#top">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#tooling">Tooling</a></li>
+          <li><a href="#deep-dives">Deep Dives</a></li>
+          <li>
+            <a href="/resume.pdf" target="_blank" rel="noopener">Resume</a>
+          </li>
+        </ul>
+        <a href="mailto:matt@mattwilson.io" class="nav-cta">Let's Connect</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div id="top"></div>
+    <section>
+      <div class="hero">
+        <div class="fi">
+          <div class="hero-eyebrow">
+            Open to collaborate &middot; Durham, NC
           </div>
-          <div class="hero-illustration">
-            <img src="duke_headshot.jpg" alt="Matt Wilson Profile Avatar" />
+          <h1 class="hero-h1">
+            <span>Full-Stack <strong>Software Engineer.</strong></span>
+            <span class="line2">Doctor of Physical Therapy.</span>
+          </h1>
+          <p class="hero-sub">
+            Building scalable clinical platforms in Next.js and Django. Three
+            years shipping production code for Accountable Care Organizations
+            and hospital systems managing hundreds of thousands of patient
+            lives.
+          </p>
+          <div class="hero-actions">
+            <a href="#deep-dives" class="btn btn-fill">Deep Dives</a>
+            <a
+              href="/resume.pdf"
+              class="btn btn-outline"
+              target="_blank"
+              rel="noopener"
+              >View Resume</a
+            >
           </div>
         </div>
-      </header>
+        <div class="hero-photo fi" style="transition-delay: 0.12s">
+          <img src="/duke_headshot.jpg" alt="Matt Wilson" />
+        </div>
+      </div>
+    </section>
 
-      <main>
-        <aside class="timeline-sidebar">
-          <div class="timeline-item">
-            <div class="company">
-              <a
-                href="https://www.radialcare.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Radial</a
-              >
-            </div>
-            <div class="role">Full Stack Engineer II</div>
-            <div class="dates">Jun 2024 - Present</div>
+    <!-- METRICS -->
+    <div class="metrics">
+      <div class="metrics-grid fi">
+        <div class="metric">
+          <div class="metric-val">100k<em>+</em></div>
+          <div class="metric-title">Row Data Grids</div>
+          <div class="metric-desc">
+            Architected frontend parallel batching and virtualized lists for
+            massive ACO patient rosters.
           </div>
-
-          <div class="timeline-item">
-            <div class="company">
-              <a
-                href="https://www.radialcare.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Radial</a
-              >
-            </div>
-            <div class="role">Full Stack Engineer I</div>
-            <div class="dates">Jun 2023 - Jun 2024</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">3m <em>→</em> &lt;15s</div>
+          <div class="metric-title">Load Times</div>
+          <div class="metric-desc">
+            Spearheaded TanStack caching, collaborating with backend on DB
+            pre-warming to slash latency.
           </div>
-
-          <div class="timeline-item">
-            <div class="company">
-              <a
-                href="https://www.theodinproject.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Self-Taught</a
-              >
-            </div>
-            <div class="role">Software Engineer</div>
-            <div class="dates">2021 - 2023</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">10m <em>→</em> 3m</div>
+          <div class="metric-title">CI/CD Pipeline</div>
+          <div class="metric-desc">
+            Optimized Vitest integration testing across 1,300+ unit and
+            integration tests.
           </div>
-
-          <div class="timeline-item">
-            <div class="company">
-              <a
-                href="https://www.dukehealth.org/locations/duke-spine-center-clinic-1b1c"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Clinical Practice</a
-              >
-            </div>
-            <div class="role">Physical Therapist</div>
-            <div class="dates">2020 - 2022</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">4+</div>
+          <div class="metric-title">Enterprise Contracts Won</div>
+          <div class="metric-desc">
+            Built data visualization dashboards that directly secured
+            multi-million dollar ACO contracts.
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="timeline-item">
-            <div class="company">
-              <a
-                href="https://medschool.duke.edu/education/health-professions-education-programs/doctor-physical-therapy-program"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Duke University</a
-              >
-            </div>
-            <div class="role">Doctoral Student</div>
-            <div class="dates">2018 - 2020</div>
-          </div>
-
-          <div class="timeline-contact">
-            <div class="company">Contact</div>
-            <div class="contact-item">
-              <a href="mailto:matwilson34@gmail.com">Email</a>
-            </div>
-            <div class="contact-item">
-              <a href="https://www.linkedin.com/in/mattwwilson/">LinkedIn</a>
-            </div>
-            <div class="contact-item">
-              <a href="https://github.com/Mattwwilson34">GitHub</a>
-            </div>
-            <div class="contact-item"><a href="/resume.pdf">Resume</a></div>
-          </div>
-        </aside>
-
-        <div class="content-area">
-          <section class="section">
-            <h2>Currently</h2>
+    <!-- ABOUT -->
+    <div style="border-top: 1px solid var(--border)">
+      <section class="section" id="about">
+        <div class="eyebrow fi">Background</div>
+        <h2 class="section-h fi">
+          The <strong>Clinical-to-Code</strong> Translation
+        </h2>
+        <div class="about-grid fi">
+          <div class="about-col">
+            <div class="about-col-label">Architecting for Healthcare Scale</div>
+            <h3>Systems built for massive clinical datasets</h3>
             <p>
-              I work at Radial as a Full Stack Software II, building healthcare
-              technology solutions that keep pace with evolving industry needs.
-              I started as a self-taught engineer and have rapidly progressed
-              through technical levels, developing products supporting care
-              decisions affecting 200,000+ patients across 12+ hospitals.
+              I specialize in the architecture and performance of data-heavy
+              clinical applications. Beyond rendering 100,000+ member rows via
+              progressive batch loading and TanStack Query, I own the
+              orchestration layer between the client and the database. By
+              leveraging Next.js API routes as a transformation layer (BFF), I
+              keep our underlying Django APIs clean and agnostic while
+              delivering highly performant, custom-tailored data to complex
+              React frontends.
             </p>
-
+          </div>
+          <div class="about-col">
+            <div class="about-col-label">The Domain Expert Advantage</div>
+            <h3>When the engineer is also the clinician</h3>
             <p>
-              Currently, we are expanding our platform and API capabilities
-              while developing new products and workflows to support the
-              upcoming CMS TEAM model (Transforming Episode Accountability
-              Model). This work leverages our partnership with Bamboo Health and
-              their Pings product to create care coordination solutions for
-              episode-based payment models. My clinical background allows me to
-              bridge the technical requirements with real-world clinical
-              workflows, ensuring our solutions address both regulatory
-              compliance and practical implementation challenges.
+              My background as a Doctor of Physical Therapy is my anchor for
+              product intuition. It allows me to look at a data model and
+              immediately understand its clinical implications. Whether I am
+              defining functional mobility rules for machine-learning decision
+              support modules or tracking down data gaps caused by inconsistent
+              hospital coding in HL7 feeds, I act as the definitive bridge
+              between strict engineering constraints and messy clinical
+              realities.
             </p>
-          </section>
+          </div>
+        </div>
+      </section>
+    </div>
 
-          <section class="section">
-            <h2>Major Projects at Radial</h2>
-
-            <div class="project">
-              <h3>Backend Demo Infrastructure Rebuild</h3>
-              <div class="project-meta">
-                2025 • Infrastructure & Data Engineering
-              </div>
-              <p class="project-description">
-                Rebuilt entire backend demo infrastructure using Python and
-                Django to pull real database data, de-identify using SAFE Harbor
-                best practices, and rebuild Django models. Created Django
-                management command tools for instant demo customer creation and
-                AWS Lambda functions for daily data resets. This infrastructure
-                enables sales teams to independently spin up complete demo
-                environments for all product prospects without engineering
-                intervention, transforming our sales process from manual setup
-                to fully automated demonstrations.
-              </p>
-              <div class="tech-stack">
-                <span>Python</span>
-                <span>Django</span>
-                <span>AWS Lambda</span>
-                <span>PostgreSQL</span>
-              </div>
+    <!-- TOOLING -->
+    <div class="tooling-wrap" id="tooling">
+      <section class="section">
+        <div class="eyebrow fi">Craft</div>
+        <h2 class="section-h fi">How I <strong>actually work</strong></h2>
+        <div class="tooling-grid">
+          <!-- IDE WINDOW -->
+          <div class="ide-window fi">
+            <div class="ide-bar">
+              <span class="ide-filename">init.lua</span>
             </div>
-
-            <div class="project">
-              <h3>Clinical Decision Support ML Platform</h3>
-              <div class="project-meta">
-                2024-Present • Product Management & Technical Specifications
-              </div>
-              <p class="project-description">
-                Leveraged clinical expertise to bridge clinical and engineering
-                teams in rebuilding clinical decision support modules. Product
-                managed clinical team to create evidence-based rule sets,
-                prepare technical specifications for machine learning engineers,
-                and assist in clarification of concepts during development of
-                predictive models for skilled nursing facility avoidance,
-                palliative/hospice referrals, and readmission predictions.
-              </p>
-              <div class="tech-stack">
-                <span>Python</span>
-                <span>Django</span>
-                <span>PostgreSQL</span>
-                <span>Technical Documentation</span>
-              </div>
+            <div class="ide-body">
+              <span class="ln c">-- dotfiles config</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln"
+                ><span class="v">return</span> <span class="p">{</span></span
+              >
+              <span class="ln in c">-- daily drivers</span>
+              <span class="ln in"
+                ><span class="k">editor</span> <span class="p">= </span
+                ><span class="s">"neovim"</span><span class="p">,</span></span
+              >
+              <span class="ln in"
+                ><span class="k">shell</span> <span class="p">= </span
+                ><span class="s">"zsh + tmux"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln in"
+                ><span class="k">terminal</span> <span class="p">= </span
+                ><span class="s">"ghostty"</span><span class="p">,</span></span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln in c">-- languages</span>
+              <span class="ln in"
+                ><span class="k">primary</span> <span class="p">= { </span
+                ><span class="s">"TypeScript"</span><span class="p">, </span
+                ><span class="s">"Python"</span> <span class="p">},</span></span
+              >
+              <span class="ln in"
+                ><span class="k">learning</span> <span class="p">= { </span
+                ><span class="s">"Go"</span><span class="p">, </span
+                ><span class="s">"Lua"</span> <span class="p">},</span></span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln in c">-- stack</span>
+              <span class="ln in"
+                ><span class="k">frontend</span> <span class="p">= </span
+                ><span class="s">"Next.js + React"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln in"
+                ><span class="k">backend</span> <span class="p">= </span
+                ><span class="s">"Django + DRF"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln in"
+                ><span class="k">db</span> <span class="p">= </span
+                ><span class="s">"PostgreSQL"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln in"
+                ><span class="k">infra</span> <span class="p">= </span
+                ><span class="s">"AWS (Lambda, RDS, EC2)"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln in c">-- wip</span>
+              <span class="ln in"
+                ><span class="k">wip</span> <span class="p">= {</span></span
+              >
+              <span class="ln" style="padding-left: 44px"
+                ><span class="s">"HTTP Job System in Go"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln" style="padding-left: 44px"
+                ><span class="s">"Arch Linux Ricing"</span
+                ><span class="p">,</span></span
+              >
+              <span class="ln in"><span class="p">},</span></span>
+              <span class="ln p">}</span>
             </div>
+          </div>
 
-            <div class="project">
-              <h3>Demo Infrastructure for Bamboo Health Partnership</h3>
-              <div class="project-meta">
-                2024 • Sales Infrastructure & Partnership
-              </div>
-              <p class="project-description">
-                Spearheaded and built entire demo infrastructure used by
-                Radial's internal sales team and partner
-                <a
-                  href="https://bamboohealth.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >Bamboo Health</a
-                >
-                - one of the most powerful care collaboration networks in the
-                nation. Infrastructure leveraged by Bamboo Health's 20-person
-                sales team to sell RadialCare to existing and new customers
-                nationwide.
+          <!-- ASIDE: FRISBEE -->
+          <div class="tooling-aside fi" style="transition-delay: 0.1s">
+            <div class="aside-block">
+              <h3>Ultimate Frisbee</h3>
+              <p style="margin-bottom: 12px">
+                18 years. Professional circuit 2014–2018. The same obsessive
+                attention to systems goes into tournament prep.
               </p>
-              <div class="tech-stack">
-                <span>Python</span>
-                <span>Django</span>
-                <span>PostgreSQL</span>
-                <span>AWS</span>
-              </div>
-            </div>
-
-            <div class="project">
-              <h3>RadialCare Platform Development</h3>
-              <div class="project-meta">
-                2023-2024 • Full-Stack Architecture & Product Development
-              </div>
-              <p class="project-description">
-                Played integral role in developing and architecting Radial's new
-                product offering, RadialCare. Transformed product scope from
-                inpatient-only to comprehensive inpatient and outpatient medical
-                services, while building external API for business partner
-                integration. Led complete frontend redesign and backend
-                architecture supporting deployment across 12+ hospitals.
-              </p>
-              <div class="tech-stack">
-                <span>Next.js</span>
-                <span>TypeScript</span>
-                <span>Python</span>
-                <span>Django</span>
-                <span>React</span>
-                <span>Material-UI</span>
-                <span>PostgreSQL</span>
-              </div>
-            </div>
-
-            <div class="project">
-              <h3>Beth Israel Lahey Health Analytics Platform</h3>
-              <div class="project-meta">
-                2023 • Data Engineering & Analytics
-              </div>
-              <p class="project-description">
-                Led analytics initiative developing monthly reporting system for
-                <a
-                  href="https://www.bilh.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >Beth Israel Lahey Healthcare Network</a
-                >
-                (5 hospitals). Built automated dashboard using Django,
-                PostgreSQL, and Python generating Excel reports with discharge
-                analytics, readmission rates by discharge type, and product
-                performance metrics demonstrating skilled nursing facility usage
-                reduction.
-              </p>
-              <div class="tech-stack">
-                <span>Python</span>
-                <span>Django</span>
-                <span>PostgreSQL</span>
-                <span>Excel Integration</span>
-              </div>
-            </div>
-
-            <div class="project">
-              <h3>Legacy React Frontend Modernization</h3>
-              <div class="project-meta">
-                2023 • Code Modernization & Testing
-              </div>
-              <p class="project-description">
-                Migrated five-year-old legacy React frontend to modern React
-                best practices, improving performance and maintainability. Wrote
-                complete suite of unit and integration testing that previously
-                did not exist, establishing new code quality standards across
-                the platform.
-              </p>
-              <div class="tech-stack">
-                <span>React</span>
-                <span>TypeScript</span>
-                <span>Jest</span>
-                <span>Testing</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="section">
-            <h2>Personal Project</h2>
-
-            <div class="project">
-              <h3>HTTP Job Queue System</h3>
-              <div class="project-meta">Ongoing • Backend Engineering</div>
-              <p class="project-description">
-                In my spare time, I am working to improve my backend engineering
-                skill set by learning the Go programming language and building a
-                job queue system using solely Go's internal libraries, focusing
-                on understanding lower-level systems programming concepts.
-              </p>
-              <div class="tech-stack">
-                <span>Go</span>
-                <span>HTTP</span>
-                <span>Concurrency</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="section">
-            <h2>Beyond Code</h2>
-            <div class="personal-grid">
-              <div class="personal-item">
-                <h3>Development Tools & Systems</h3>
-                <p>
-                  Passionate about understanding the tools I use deeply.
-                  Transitioned from VS Code to NeoVim, learning Lua for custom
-                  configurations and gaining intimate knowledge of my
-                  development environment. Currently planning to build a system
-                  running Arch Linux to further explore operating systems and
-                  low-level programming.
-                </p>
-                <div class="achievement">NeoVim + Lua Enthusiast</div>
-              </div>
-
-              <div class="personal-item">
-                <h3>Ultimate Frisbee</h3>
-                <p>
-                  Competitive athlete with 18 years at club level and
-                  professional experience (2014-2018). Recent achievements:
-                </p>
-                <ul class="achievement-list">
-                  <li>2026: Competing at masters worlds</li>
-                  <li>2025: Gold at masters nationals</li>
-                  <li>2024: Silver at World Games</li>
-                  <li>2024: Silver at masters nationals</li>
-                </ul>
-                <div class="achievement">2025 National Champion</div>
-              </div>
-
-              <div class="personal-item">
-                <h3>Language Learning</h3>
-                <p>
-                  Currently studying Spanish using Baselang, practicing through
-                  conversations with native speakers and structured curriculum.
-                  Learning languages keeps my mind sharp and opens new
-                  perspectives for exploring Latin American cultures with my
-                  Cuban wife.
-                </p>
-                <div class="achievement">Beginner-Intermediate Spanish</div>
-              </div>
-
-              <div class="personal-item">
-                <h3>Healthcare Domain</h3>
-                <p>
-                  Passionate about healthcare with doctorate in physical
-                  therapy. While my current role focuses on engineering rather
-                  than direct patient care, I continue to leverage clinical
-                  expertise at Radial and maintain hands-on practice through
-                  treating family, friends, and fellow athletes. This dual
-                  perspective allows me to understand both the technical
-                  requirements and real-world clinical workflows of healthcare
-                  technology.
-                </p>
-                <div class="achievement">
-                  Doctor of Physical Therapy • Active License
+              <div class="frisbee-rows">
+                <div class="frisbee-row">
+                  <span class="f-year">2026</span>
+                  <span class="f-result"
+                    >Competing at <strong>Masters Worlds</strong></span
+                  >
+                </div>
+                <div class="frisbee-row">
+                  <span class="f-year">2025</span>
+                  <span class="f-result"
+                    ><strong>Gold</strong> &mdash; Masters Nationals</span
+                  >
+                </div>
+                <div class="frisbee-row">
+                  <span class="f-year">2024</span>
+                  <span class="f-result"
+                    ><strong>Silver</strong> &mdash; World Games</span
+                  >
+                </div>
+                <div class="frisbee-row">
+                  <span class="f-year">2024</span>
+                  <span class="f-result"
+                    ><strong>Silver</strong> &mdash; Masters Nationals</span
+                  >
+                </div>
+                <div class="frisbee-row">
+                  <span class="f-year">2014–18</span>
+                  <span class="f-result">Professional club circuit</span>
                 </div>
               </div>
             </div>
-          </section>
+            <div class="aside-block">
+              <h3>Currently learning</h3>
+              <p>
+                Building an HTTP job queue system in Go using only the standard
+                library — focused on concurrency primitives and lower-level
+                systems concepts. Planning an Arch Linux build next.
+              </p>
+            </div>
+          </div>
         </div>
-      </main>
-
-      <footer>
-        <div class="contact-links">
-          <a href="mailto:matwilson34@gmail.com">email</a>
-          <a href="https://www.linkedin.com/in/mattwwilson/">linkedin</a>
-          <a href="https://github.com/Mattwwilson34">github</a>
-          <a href="/resume.pdf">resume</a>
-        </div>
-        <p class="footer-text">
-          If you think there could be a good opportunity for us to work
-          together, please reach out.
-        </p>
-      </footer>
+      </section>
     </div>
+
+    <!-- DEEP DIVES -->
+    <div style="border-top: 1px solid var(--border)">
+      <section class="section" id="deep-dives">
+        <div class="eyebrow fi">Writing — coming soon</div>
+        <h2 class="section-h fi">Technical <strong>Deep Dives</strong></h2>
+        <div class="dives-list">
+          <div class="dive planned fi">
+            <div>
+              <div class="dive-num">01</div>
+              <div class="dive-title">
+                Post-Mortem: How a Next.js Version Bump Caused a 47-Minute 502
+                Outage (and How We Fixed It via NGINX)
+              </div>
+              <div class="dive-tag">Infrastructure &middot; Post-Mortem</div>
+            </div>
+            <span class="dive-status">planned</span>
+          </div>
+          <div class="dive planned fi" style="transition-delay: 0.06s">
+            <div>
+              <div class="dive-num">02</div>
+              <div class="dive-title">
+                Scaling TanStack Query: Handling Multi-Megabyte Caches &
+                Optimistic UI Without the Memory Tax
+              </div>
+              <div class="dive-tag">
+                Frontend Architecture &middot; Performance
+              </div>
+            </div>
+            <span class="dive-status">planned</span>
+          </div>
+          <div class="dive planned fi" style="transition-delay: 0.12s">
+            <div>
+              <div class="dive-num">03</div>
+              <div class="dive-title">
+                Client-Side Enrichment: Building a Hierarchical View Manager
+                with Zero Backend Schema Changes
+              </div>
+              <div class="dive-tag">Frontend Engineering &middot; Patterns</div>
+            </div>
+            <span class="dive-status">planned</span>
+          </div>
+          <div class="dive planned fi" style="transition-delay: 0.18s">
+            <div>
+              <div class="dive-num">04</div>
+              <div class="dive-title">
+                Architecting a Hierarchical View Management System Without
+                Backend Schema Changes
+              </div>
+              <div class="dive-tag">
+                Full-Stack Architecture &middot; Data Modeling
+              </div>
+            </div>
+            <span class="dive-status">planned</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-wrap">
+      <div class="footer-inner">
+        <span class="footer-copy"
+          >&copy; 2026 Matt Wilson &middot; mattwilson.io</span
+        >
+        <nav class="footer-links" aria-label="Footer links">
+          <a
+            href="https://linkedin.com/in/mattwwilson"
+            target="_blank"
+            rel="noopener"
+            >LinkedIn</a
+          >
+          <span class="footer-sep">/</span>
+          <a
+            href="https://github.com/Mattwwilson34"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+          <span class="footer-sep">/</span>
+          <a href="mailto:matt@mattwilson.io">matt@mattwilson.io</a>
+          <span class="footer-sep">/</span>
+          <span style="font-size: 13px; color: var(--text-3)">Durham, NC</span>
+        </nav>
+      </div>
+    </div>
+
+    <script src="main.js" defer></script>
   </body>
 </html>

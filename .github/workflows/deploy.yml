@@ -56,6 +56,19 @@ jobs:
 
           echo "✅ Files deployed successfully"
 
+      - name: Update nginx CSP
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST "
+            sudo sed -i \"s|script-src 'none'|script-src 'self'|g\" /etc/nginx/sites-available/$DOMAIN_NAME
+            sudo sed -i \"s|style-src 'self';|style-src 'self' https://fonts.googleapis.com;|g\" /etc/nginx/sites-available/$DOMAIN_NAME
+            sudo sed -i \"s|font-src 'self';|font-src 'self' https://fonts.gstatic.com;|g\" /etc/nginx/sites-available/$DOMAIN_NAME
+            sudo nginx -t && sudo systemctl reload nginx
+          "
+
       - name: Fix file permissions
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}

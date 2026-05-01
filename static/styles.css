@@ -458,6 +458,16 @@ img { display: block; max-width: 100%; }
   user-select: none;
 }
 
+/* ── UTILITY ── */
+.section-border { border-top: 1px solid var(--border); }
+.in2 { padding-left: 44px; }
+.mb-12 { margin-bottom: 12px; }
+.footer-location { font-size: 13px; color: var(--text-3); }
+.fi-d1 { transition-delay: .06s; }
+.fi-d2 { transition-delay: .1s; }
+.fi-d3 { transition-delay: .12s; }
+.fi-d4 { transition-delay: .18s; }
+
 /* ── FADE-IN ── */
 .fi {
   opacity: 0;

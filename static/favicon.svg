@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="oklch(13% 0.018 240)"></rect>
+  <text x="15" y="23" font-family="DM Sans, system-ui, sans-serif" font-size="21" font-weight="600" fill="oklch(93% 0.006 240)" text-anchor="middle" letter-spacing="-0.5">m</text>
+  <circle cx="25" cy="22.5" r="2.2" fill="oklch(68% 0.14 195)"></circle>
+</svg>
